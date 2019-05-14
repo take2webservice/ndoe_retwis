@@ -1,4 +1,4 @@
-var IORedis = require('ioredis');
+var IORedis = require('ioredis')
 module.exports = class RedisService {
   static start() {
     return new IORedis({
@@ -7,10 +7,10 @@ module.exports = class RedisService {
       family: 4, // 4 (IPv4) or 6 (IPv6)
       //password: 'auth',
       db: 0,
-    });
+    })
   }
 
   static close(redis) {
-    redis.disconnect();
+    redis.disconnect()
   }
-};
+}

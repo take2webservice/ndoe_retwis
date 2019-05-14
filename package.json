@@ -6,13 +6,15 @@
   "dependencies": {},
   "devDependencies": {
     "ejs": "^2.6.1",
+    "eslint": "^5.16.0",
     "ioredis": "^4.9.3",
     "prettier": "1.17.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pre": "prettier --single-quote --trailing-comma es5 --write '{app,__{tests,mocks}__}/**/*.js'",
-    "start": "node app/index.js"
+    "start": "node app/index.js",
+    "lint": "eslint app" 
   },
   "author": "",
   "license": "ISC"

@@ -1,14 +1,13 @@
-const RenderService = include('Services/RenderService');
-const HttpService = include('Services/HttpService');
-const RedisService = include('Services/RedisService');
-const Utility = include('Utils/Utility');
+const HttpService = include('Services/HttpService')
+const RedisService = include('Services/RedisService')
+const Utility = include('Utils/Utility')
 
 module.exports = class FollowController {
   static async follow(req, res) {
-    const isLoggedIn = await Utility.isLoggedIn(Utility.parseCookie(req));
+    const isLoggedIn = await Utility.isLoggedIn(Utility.parseCookie(req))
 
-    const userId = await Utility.userId(Utility.parseCookie(req).auth);
-    const query = await HttpService.getRequestParams(req);
+    const userId = await Utility.userId(Utility.parseCookie(req).auth)
+    const query = await HttpService.getRequestParams(req)
     if (
       !isLoggedIn ||
       Utility.isBlank(query.uid) ||
@@ -17,26 +16,26 @@ module.exports = class FollowController {
     ) {
       res.writeHead(302, {
         Location: 'http://localhost:8080/',
-      });
-      res.end();
-      return;
+      })
+      res.end()
+      return
     }
 
-    const redis = RedisService.start();
-    const f = query.f;
-    const fuid = query.uid;
+    const redis = RedisService.start()
+    const f = query.f
+    const fuid = query.uid
     if (Utility.isTrue(f)) {
-      redis.zadd(`followers:${fuid}`, new Date().getTime(), userId);
-      redis.zadd(`following:${userId}`, new Date().getTime(), fuid);
+      redis.zadd(`followers:${fuid}`, new Date().getTime(), userId)
+      redis.zadd(`following:${userId}`, new Date().getTime(), fuid)
     } else {
-      redis.zrem(`followers:${fuid}`, userId);
-      redis.zrem(`following:${userId}`, fuid);
+      redis.zrem(`followers:${fuid}`, userId)
+      redis.zrem(`following:${userId}`, fuid)
     }
-    const user = await redis.hgetall(`user:${fuid}`);
+    const user = await redis.hgetall(`user:${fuid}`)
     res.writeHead(302, {
       //TODO ちゃんとuser_nameを渡すようにする
       Location: `/profile?u=${encodeURI(user.username)}`,
-    });
-    res.end();
+    })
+    res.end()
   }
-};
+}
