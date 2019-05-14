@@ -11,7 +11,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node app/index.js"
+    "pre": "prettier --single-quote --trailing-comma es5 --write '{app,__{tests,mocks}__}/**/*.js'",
+    "start": "node app/index.js"
   },
   "author": "",
   "license": "ISC"
