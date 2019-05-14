@@ -1,0 +1,15 @@
+<html>
+<%- include('app/Views/template/head') -%>
+<body>
+  <div id="page">
+    <div id="header">
+    <a href="/"><img style="border:none" src="/public/logo.png" width="192" height="85" alt="Retwis"></a>
+    <%- include('app/Views/template/navbar') -%>
+    </div>
+    <div id="welcomebox">
+      <h2>Welcome aboard!</h2>
+      Hey <%= userName %>, now you have an account, <a href="/">a good start is to write your first message!</a>.
+      <%- include('app/Views/template/footer') -%>
+    </div>
+  </body>
+</html>

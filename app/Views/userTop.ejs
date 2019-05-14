@@ -1,0 +1,50 @@
+<html>
+<%- include('app/Views/template/head') -%>
+<body>
+  <div id="page">
+    <div id="header">
+    <a href="/"><img style="border:none" src="/public/logo.png" width="192" height="85" alt="Retwis"></a>
+    <%- include('app/Views/template/navbar') -%>
+    </div>
+    <div id="postform">
+      <form method="POST" action="/post">
+      <%= username %>, what you are doing?
+      <br>
+      <table>
+      <tr><td><textarea cols="70" rows="3" name="status"></textarea></td></tr>
+      <tr><td align="right"><input type="submit" name="doit" value="Update"></td></tr>
+      </table>
+      </form>
+      <div id="homeinfobox">
+      <%= followersCount %> followers<br>
+      <%= followingCount %> following<br>
+      </div>
+    </div>
+    <h2 class="username"><%= username %></h2>
+    <% if (showFollow) {%>
+      <a href="follow?uid=<%= uid %>&f=true" class="button">Follow this user</a>
+    <% } %>
+    <% if (showUnFollow) {%>
+      <a href="follow?uid=<%= uid %>&f=false" class="button">Follow this user</a>
+    <% } %>
+
+    <% posts.forEach(function (post) { %>
+      <div class="post">
+        <a class="username" href="profile?u=<%= post.userName %>"><%= post.userName %></a>
+        <%= post.body%>
+        <br>
+        <i>posted <%= post.elasped %> ago via web</i></div>
+    <% }) %>
+    <% if (prev !== false || next !== false ){ %>
+      <div class="rightlink">
+        <% if (prev !== false) {%>
+          <a href="/?start=<%= prev %>".$u."\">Newer posts &raquo;</a>
+        <% } %>
+        <% if (next !== false) {%>
+          <a href="/?start=<%= next %>".$u."\">Older posts &raquo;</a>
+        <% } %>
+      </div>
+    <% } %>
+    <%- include('app/Views/template/footer') -%>
+  </body>
+</html>
