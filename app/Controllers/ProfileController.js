@@ -1,77 +1,42 @@
 const RenderService = include('Services/RenderService')
 const HttpService = include('Services/HttpService')
-const RedisService = include('Services/RedisService')
 const Utility = include('Utils/Utility')
+const User = include('Models/User')
+const PostPage = include('Models/PostPage')
 
 module.exports = class ProfileController {
   static async show(req, res) {
-    const params = await HttpService.getRequestParams(req)
-    const redis = RedisService.start()
-    const userName = params.u
-    const userId = await redis.hget('users', userName)
-    if (Utility.isBlank(userName) || userId === null) {
-      res.writeHead(302, {
-        Location: '/',
-      })
-      res.end()
-      return
-    }
-    const isLoggedIn = await Utility.isLoggedIn(Utility.parseCookie(req))
-    const currentUser = await Utility.userInfo(Utility.parseCookie(req).auth)
-    let showFollow = false
-    let showUnFollow = false
+    const params = HttpService.getRequestParams(req)
+    const paramUser = await User.getUserByName(params.u)
 
-    if (isLoggedIn && currentUser.username !== userName) {
-      const isFollowing = await redis.zscore(
-        `following:${userId}`,
-        currentUser.id
-      )
-      if (isFollowing) {
-        showUnFollow = true
-      } else {
-        showFollow = true
-      }
-    }
+    if (Utility.isBlank(paramUser)) return HttpService.redirect(res, '/')
 
-    const followersCount = await Utility.followersCount(userId)
-    const followingCount = await Utility.followingCount(userId)
-    const start = params.start ? Number(params.start) : 0
-    let next = start + 10
-    let prev = start < 10 ? false : start - 10
-    if (prev < 0) prev = 0
+    const secret = HttpService.getCookie(req).auth
+    const currentUser = await User.currentUser(secret)
+    const showFollow = currentUser !== null
+    const following = showFollow
+      ? await currentUser.isFollowing(paramUser.getId())
+      : false
 
-    const key = `posts:${userId}`
-    const post_ids = await redis.lrange(key, start, next - 1)
-    const posts = []
-    for (let id of post_ids) {
-      const post = await redis.hgetall(`post:${id}`)
-      const userName = await redis.hget(`user:${post.user_id}`, 'username')
-      posts.push({
-        userName: userName,
-        body: post.body,
-        userId: post.user_id,
-        time: post.time,
-        elaspled: 'elasped',
-      })
-    }
-    if (posts.length !== 10) {
-      next = false
-    }
-
+    const start = Number(params.start) ? Number(params.start) : 0
+    const count = 10
+    const page = await PostPage.getUserPostsPage(
+      paramUser.getId(),
+      start,
+      count
+    )
     const args = {
-      title: 'user top',
-      username: userName,
-      uid: userId,
-      followersCount: followersCount,
-      followingCount: followingCount,
-      posts: posts,
-      prev: prev,
-      next: next,
-      showUnFollow: showUnFollow,
+      title: `${paramUser.getName()} page`,
+      user: paramUser,
+      followersCount: await paramUser.followersCount(),
+      followingCount: await paramUser.followingCount(),
+      page: page,
       showFollow: showFollow,
+      following: following,
+      isMyTimeline: false,
       filename: './userTop.ejs',
+      isLoggedin: currentUser !== null,
     }
-
     RenderService.success(res, './app/Views/userTop.ejs', args)
   }
 }

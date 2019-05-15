@@ -1,6 +1,9 @@
 <div id="navbar">
   <a href="/">home</a>
-  | <a href="/timeline">timeline</a>
+  <% if (isLoggedin ) {%>
   | <a href="/logout">logout</a>
+  <% }else { %>
+    <a href="/timeline">timeline</a>
+  <% }%>
 </div>
   

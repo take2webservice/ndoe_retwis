@@ -1,41 +1,49 @@
 const HttpService = include('Services/HttpService')
-const RedisService = include('Services/RedisService')
 const Utility = include('Utils/Utility')
+const User = include('Models/User')
 
 module.exports = class FollowController {
   static async follow(req, res) {
-    const isLoggedIn = await Utility.isLoggedIn(Utility.parseCookie(req))
+    const secret = HttpService.getCookie(req).auth
+    const isLoggedIn = await User.isLoggedIn(secret)
+    if (!isLoggedIn) return HttpService.redirect(res, '/')
 
-    const userId = await Utility.userId(Utility.parseCookie(req).auth)
+    const user = User.currentUser(secret)
     const query = await HttpService.getRequestParams(req)
+    const followUser = User.getUserById(query.uid)
     if (
-      !isLoggedIn ||
       Utility.isBlank(query.uid) ||
-      Utility.isFalse(query.f) ||
-      query.uid === userId
+      followUser === null ||
+      followUser.getId() === user.getId()
     ) {
-      res.writeHead(302, {
-        Location: 'http://localhost:8080/',
-      })
-      res.end()
-      return
+      return HttpService.redirect(res, '/')
     }
+    user.follow(followUser.getId())
+    return HttpService.redirect(
+      res,
+      `/profile?u=${encodeURI(followUser.getName())}`
+    )
+  }
 
-    const redis = RedisService.start()
-    const f = query.f
-    const fuid = query.uid
-    if (Utility.isTrue(f)) {
-      redis.zadd(`followers:${fuid}`, new Date().getTime(), userId)
-      redis.zadd(`following:${userId}`, new Date().getTime(), fuid)
-    } else {
-      redis.zrem(`followers:${fuid}`, userId)
-      redis.zrem(`following:${userId}`, fuid)
+  static async unfollow(req, res) {
+    const secret = HttpService.getCookie(req).auth
+    const isLoggedIn = await User.isLoggedIn(secret)
+    if (!isLoggedIn) return HttpService.redirect(res, '/')
+
+    const user = User.currentUser(secret)
+    const query = await HttpService.getRequestParams(req)
+    const followUser = User.getUserById(query.uid)
+    if (
+      Utility.isBlank(query.uid) ||
+      followUser === null ||
+      followUser.getId() === user.getId()
+    ) {
+      return HttpService.redirect(res, '/')
     }
-    const user = await redis.hgetall(`user:${fuid}`)
-    res.writeHead(302, {
-      //TODO ちゃんとuser_nameを渡すようにする
-      Location: `/profile?u=${encodeURI(user.username)}`,
-    })
-    res.end()
+    user.unfollow(followUser.getId())
+    return HttpService.redirect(
+      res,
+      `/profile?u=${encodeURI(followUser.getName())}`
+    )
   }
 }

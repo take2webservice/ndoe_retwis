@@ -30,10 +30,29 @@ module.exports = class HttpService {
     return result
   }
 
+  static getCookie(req) {
+    const result = {}
+    const cookieStr = req.headers.cookie
+    if (!cookieStr) return result
+    cookieStr.split(' ').forEach(function(cookie) {
+      var parts = cookie.split('=')
+      result[parts.shift().trim()] = decodeURI(
+        parts.join('=').replace(/;\s*$/, '')
+      )
+    })
+    return result
+  }
+
   static redirect(res, url) {
     res.writeHead(302, {
       Location: url,
     })
+    res.end()
+  }
+
+  static notAuth(res, message) {
+    res.writeHead(401, { 'content-type': 'text/html' })
+    res.write(message)
     res.end()
   }
 }

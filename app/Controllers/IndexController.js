@@ -2,9 +2,9 @@ const url = require('url')
 const fs = require('fs')
 const path = require('path')
 const RenderService = include('Services/RenderService')
-const RedisService = include('Services/RedisService')
 const HttpService = include('Services/HttpService')
-const Utility = include('Utils/Utility')
+const User = include('Models/User')
+const PostPage = include('Models/PostPage')
 
 const mime = {
   '.html': 'text/html',
@@ -19,63 +19,67 @@ const mime = {
 
 module.exports = class IndexController {
   static async index(req, res) {
-    const isLoggedIn = await Utility.isLoggedIn(Utility.parseCookie(req))
+    const secret = HttpService.getCookie(req).auth
+    const isLoggedIn = await User.isLoggedIn(secret)
     if (isLoggedIn) {
-      this.userTop(req, res)
-    } else {
-      RenderService.success(res, './app/Views/index.ejs', {
-        title: 'this is title',
-        filename: './index.ejs',
-      })
+      return this.userTimeline(req, res)
     }
+    RenderService.success(res, './app/Views/index.ejs', {
+      title: 'this is title',
+      filename: './index.ejs',
+      isLoggedin: false,
+    })
   }
 
-  static async userTop(req, res) {
-    const userInfo = await Utility.userInfo(Utility.parseCookie(req).auth)
-    const username = userInfo.username
-    const redis = RedisService.start()
-    const userId = await redis.hget('users', username)
-    const followersCount = await Utility.followersCount(userId)
-    const followingCount = await Utility.followingCount(userId)
+  static async userTimeline(req, res) {
+    const secret = HttpService.getCookie(req).auth
+    const currentUser = await User.currentUser(secret)
+    if (currentUser === null)
+      throw new Error('redis secret and cookie secret not matched')
 
     const params = HttpService.getRequestParams(req)
     const start = Number(params.start) ? Number(params.start) : 0
-    let next = start + 10
-    let prev = start < 10 ? false : start - 10
-    if (prev < 0) prev = 0
+    const count = 10
+    const page = await PostPage.getUserPostsPage(
+      currentUser.getId(),
+      start,
+      count
+    )
+    const args = {
+      title: 'user top',
+      user: currentUser,
+      followersCount: await currentUser.followersCount(),
+      followingCount: await currentUser.followingCount(),
+      page: page,
+      showFollow: false,
+      following: false,
+      isMyTimeline: true,
+      filename: './userTop.ejs',
+      isLoggedin: true,
+    }
+    RenderService.success(res, './app/Views/userTop.ejs', args)
+  }
 
-    const key = 'timeline'
-    const post_ids = await redis.lrange(key, start, next - 1)
-    const posts = []
-    for (let id of post_ids) {
-      const post = await redis.hgetall(`post:${id}`)
-      const userName = await redis.hget(`user:${post.user_id}`, 'username')
-      posts.push({
-        userName: userName,
-        body: post.body,
-        userId: post.user_id,
-        time: post.time,
-        elaspled: 'elasped',
-      })
-    }
-    if (posts.length !== 10) {
-      next = false
-    }
+  static async generalTimeline(req, res) {
+    const secret = HttpService.getCookie(req).auth
+
+    const params = HttpService.getRequestParams(req)
+    const start = Number(params.start) ? Number(params.start) : 0
+    const count = 10
+    const page = await PostPage.getTimelinePage(start, count)
 
     const args = {
       title: 'user top',
-      username: username,
-      uid: 0,
-      followersCount: followersCount,
-      followingCount: followingCount,
-      posts: posts,
-      prev: prev,
-      next: next,
-      showUnFollow: false,
+      user: null,
+      followersCount: null,
+      followingCount: null,
+      page: page,
       showFollow: false,
+      following: false,
+      isMyTimeline: false,
       filename: './userTop.ejs',
+      isLoggedin: await User.isLoggedIn(secret),
     }
-
     RenderService.success(res, './app/Views/userTop.ejs', args)
   }
 

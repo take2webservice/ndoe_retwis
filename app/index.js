@@ -12,14 +12,13 @@ const http = require('http')
 const url_lib = require('url')
 
 const IndexController = include('Controllers/IndexController.js')
-const RegisterController = include('Controllers/RegisterController.js')
 const PostController = include('Controllers/PostController.js')
-const LoginController = include('Controllers/LoginController.js')
 const FollowController = include('Controllers/FollowController.js')
 const ProfileController = include('Controllers/ProfileController.js')
+const UserController = include('Controllers/UserController.js')
 
 const server = http.createServer()
-server.on('request', async function (req, res) {
+server.on('request', async function(req, res) {
   const method = req.method
   const uri = url_lib.parse(req.url).pathname
   try {
@@ -28,25 +27,31 @@ server.on('request', async function (req, res) {
       case '/index':
         await IndexController.index(req, res)
         break
+      case '/profile':
+        switch (method) {
+          case 'GET':
+            await ProfileController.show(req, res)
+            break
+        }
+        break
       case '/register':
         switch (method) {
           case 'POST':
-          case 'GET':
-            await RegisterController.save(req, res)
+            await UserController.regist(req, res)
             break
         }
         break
       case '/post':
         switch (method) {
           case 'POST':
-            await PostController.save(req, res)
+            await PostController.post(req, res)
             break
         }
         break
       case '/login':
         switch (method) {
           case 'POST':
-            await LoginController.doLogin(req, res)
+            await UserController.login(req, res)
             break
         }
         break
@@ -54,22 +59,28 @@ server.on('request', async function (req, res) {
         switch (method) {
           case 'GET':
           case 'POST':
-            await LoginController.doLogout(req, res)
+            await UserController.logout(req, res)
             break
         }
         break
       case '/follow':
         switch (method) {
           case 'GET':
-          case 'POST':
             await FollowController.follow(req, res)
             break
         }
         break
-      case '/profile':
+      case '/unfollow':
         switch (method) {
           case 'GET':
-            await ProfileController.show(req, res)
+            await FollowController.unfollow(req, res)
+            break
+          }
+        break
+      case '/timeline':
+        switch (method) {
+          case 'GET':
+            await IndexController.generalTimeline(req, res)
             break
         }
         break
@@ -79,7 +90,7 @@ server.on('request', async function (req, res) {
   } catch (e) {
     console.log(e)
     res.writeHead(500, { 'content-type': 'text/html' })
-    res.write('Internal ServerError')
+    res.write(`Internal ServerError: ${e.message}`)
     res.end()
   }
   return

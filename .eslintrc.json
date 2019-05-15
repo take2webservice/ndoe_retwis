@@ -3,7 +3,13 @@
     "plugins": [],
     "parserOptions": {
         "ecmaVersion": 2018,
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "blockBindings": true,
+            "modules": true,
+            "superInFunctions": true,
+            "classes": true
+        }
     },
     "env": {
         "es6": true,
