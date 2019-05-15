@@ -48,7 +48,7 @@ module.exports = class PostPage {
   }
 
   static async getPostsPage(key, start, count) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const total = await redis.llen(key)
     const posts = await Post.getPosts(key, start, count)
     let next = start + count
@@ -56,6 +56,7 @@ module.exports = class PostPage {
     if (posts.length < count || total < next) {
       next = false
     }
+    RedisService.relaseConnection(redis)
     return new PostPage(posts, total, prev, next)
   }
 }

@@ -46,16 +46,21 @@ module.exports = class User {
 
   static async getUserById(id) {
     if (Utility.isBlank(id)) throw new Error('userId not found')
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const redisUser = await redis.hgetall(`user:${id}`)
-    if (redisUser === null) return null
+    if (redisUser === null) {
+      RedisService.relaseConnection(redis)
+      return null
+    }
+    RedisService.relaseConnection(redis)
     return new User(id, redisUser.username, redisUser.password, redisUser.auth)
   }
 
   static async getIdByName(name) {
     if (Utility.isBlank(name)) throw new Error('name not found')
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const id = await redis.hget(`users`, name)
+    RedisService.relaseConnection(redis)
     return id
   }
 
@@ -68,8 +73,9 @@ module.exports = class User {
 
   static async getIdBySecret(secret) {
     if (Utility.isBlank(secret)) throw new Error('secret not found')
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const id = await redis.hget('auths', secret)
+    RedisService.relaseConnection(redis)
     return id
   }
 
@@ -81,44 +87,50 @@ module.exports = class User {
     return null
   }
   async followersCount() {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const followers = await redis.zcard(`followers:${this.getId()}`)
+    RedisService.relaseConnection(redis)
     return followers === null ? 0 : followers
   }
 
   async followingCount() {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const following = await redis.zcard(`folloing:${this.getId()}`)
+    RedisService.relaseConnection(redis)
     return following === null ? 0 : following
   }
 
   async follow(id) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const currentTime = new Date().getTime()
     redis.zadd(`followers:${id}`, currentTime, this.getId())
     redis.zadd(`following:${this.getId()}`, currentTime, id)
+    RedisService.relaseConnection(redis)
   }
 
   async unfollow(id) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     redis.zrem(`followers:${id}`, this.getId())
     redis.zrem(`following:${this.getId()}`, id)
+    RedisService.relaseConnection(redis)
   }
 
   async isFollowing(id) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const following = await redis.zscore(`folloing:${this.getId()}`, id)
+    RedisService.relaseConnection(redis)
     return following === null ? false : true
   }
 
   async isFollowers(id) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const followers = await redis.zscore(`followers:${this.getId()}`, id)
+    RedisService.relaseConnection(redis)
     return followers === null ? false : true
   }
 
   static async registUser(userName, userId, currentTime, password, newSecret) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     redis.hset('users', userName, userId)
     redis.zadd('users_by_time', currentTime, userName)
     redis.hmset(`user:${userId}`, {
@@ -128,16 +140,18 @@ module.exports = class User {
       auth: newSecret,
     })
     redis.hset('auths', newSecret, userId)
+    RedisService.relaseConnection(redis)
   }
 
   static async getNewUserId() {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const userId = await redis.incr('next_user_id')
+    RedisService.relaseConnection(redis)
     return userId
   }
 
   async doLogin(newSecret) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     redis.hdel('auths', this.getAuth())
     redis.hmset(`user:${this.getId()}`, {
       userid: this.getId(),
@@ -146,11 +160,13 @@ module.exports = class User {
       auth: newSecret,
     })
     redis.hset('auths', newSecret, this.getId())
+    RedisService.relaseConnection(redis)
   }
 
   async doLgout() {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     redis.hdel('auths', this.getAuth())
+    RedisService.relaseConnection(redis)
   }
 
   static async userExists(name) {

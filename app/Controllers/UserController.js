@@ -18,9 +18,9 @@ module.exports = class UserController {
       const authSecret = Utility.getRandomStr()
       user.doLogin(authSecret)
       const exppire = new Date(
-        new Date().getTime() + 3600 * 24 * 365
+        new Date().getTime() + 3600 * 24 * 31 * 1000
       ).toUTCString()
-      res.setHeader('Set-Cookie', [`auth=${authSecret} expires=${exppire}`])
+      res.setHeader('Set-Cookie', [`auth=${authSecret};  expires=${exppire}`])
       return HttpService.redirect(res, '/')
     }
     HttpService.notAuth(res, 'Not authenticated')
@@ -28,12 +28,13 @@ module.exports = class UserController {
 
   static async logout(req, res) {
     const paramSecret = HttpService.getCookie(req).auth
+    console.log(paramSecret)
     const user = await User.currentUser(paramSecret)
-    user.doLgout()
+    await user.doLgout()
     const expire = new Date(
-      new Date().getTime() - 3600 * 24 * 365
+      new Date().getTime() - 3600 * 24 * 31 * 1000
     ).toUTCString()
-    res.setHeader('Set-Cookie', [`auth='' expires=${expire}`])
+    res.setHeader('Set-Cookie', [`auth=${paramSecret};  expires=${expire}`])
     return HttpService.redirect(res, '/')
   }
 
@@ -62,8 +63,8 @@ module.exports = class UserController {
     const currentTime = new Date().getTime()
     const userId = await User.getNewUserId()
     await User.registUser(userName, userId, currentTime, password, authSecret)
-    const expire = new Date(currentTime + 3600 * 24 * 365).toUTCString()
-    res.setHeader('Set-Cookie', [`auth=${authSecret} expires=${expire}`])
+    const expire = new Date(currentTime + 3600 * 31 * 1000).toUTCString()
+    res.setHeader('Set-Cookie', [`auth=${authSecret};  expires=${expire}`])
 
     RenderService.success(res, './app/Views/registed.ejs', {
       title: 'registet was successed',

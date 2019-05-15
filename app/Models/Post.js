@@ -49,7 +49,7 @@ module.exports = class Post {
   }
 
   static async getPosts(key, start, count) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const postIds = await redis.lrange(key, start, count - 1)
     const posts = []
     const users = {} //cache
@@ -68,6 +68,7 @@ module.exports = class Post {
       const post = new Post(id, user, redisPost.time, redisPost.body)
       posts.push(post)
     }
+    RedisService.relaseConnection(redis)
     return posts
   }
 
@@ -87,13 +88,14 @@ module.exports = class Post {
   }
 
   static async getNewPostId() {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
     const postId = await redis.incr('next_post_id')
+    RedisService.relaseConnection(redis)
     return postId
   }
 
   static async doPost(postId, user, status, currentTime) {
-    const redis = RedisService.start()
+    const redis = await RedisService.getConnection()
 
     //regist post detail
     redis.hmset(`post:${postId}`, {
@@ -115,5 +117,6 @@ module.exports = class Post {
     // add post to global timeline
     redis.lpush('timeline', postId)
     redis.ltrim('timeline', 0, 1000) //timeline saves 1000 posts.
+    RedisService.relaseConnection(redis)
   }
 }

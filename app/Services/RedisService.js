@@ -1,22 +1,50 @@
 var IORedis = require('ioredis')
-// load connection
+const genericPool = require("generic-pool");
 require('dotenv').config({ path: abs_path('/.env') })
 
 module.exports = class RedisService {
-  static start() {
-    const args = {
-      port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379, // Redis port
-      host: process.env.REDIS_HOST ? process.env.REDIS_HOST :'127.0.0.1', // Redis host
-      family: process.env.REDIS_IP_FAMILY ? process.env.REDIS_IP_FAMILY : 4, // 4 (IPv4) or 6 (IPv6)
-      db: 0,
+  static async getConnection() {
+    if (this.myPool === undefined) {
+      const factory = {
+        create: function() {
+            const args = {
+              port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379, // Redis port
+              host: process.env.REDIS_HOST ? process.env.REDIS_HOST :'127.0.0.1', // Redis host
+              family: process.env.REDIS_IP_FAMILY ? process.env.REDIS_IP_FAMILY : 4, // 4 (IPv4) or 6 (IPv6)
+              db: 0,
+        
+            }
+            if (process.env.REDIS_PASSWORD) {
+              args.password = process.env.REDIS_PASSWORD //RedisPassword
+            }
+            return new IORedis(args)
+        },
+        destroy: function(redis) {
+            redis.disconnect()
+        }
+      }
+      const opts = {
+          max: Number(process.env.REDIS_MAX_CON_POOL) ? Number(process.env.REDIS_MAX_CON_POOL) :  10, // maximum size of the pool
+          min: Number(process.env.REDIS_MIN_CON_POOL) ? Number(process.env.REDIS_MIN_CON_POOL) : 2 // minimum size of the pool
+      }
+      this.myPool = genericPool.createPool(factory, opts)
     }
-    if (process.env.REDIS_PASSWORD) {
-      args.password = process.env.REDIS_PASSWORD
-    }
-    return new IORedis(args)
+    return await this.myPool.acquire()
   }
 
-  static close(redis) {
-    redis.disconnect()
+  static relaseConnection(redis) {
+    if (this.myPool === undefined) return
+    this.myPool.release(redis) 
+  }
+
+  static async closeConnection() {
+    if (this.myPool === undefined) return
+    await this.myPool.drain()
+    await this.myPool.clear()
+  }
+
+  static checkPool() {
+    console.log(this.myPool.size)
+    console.log(this.myPool.available)
   }
 }
