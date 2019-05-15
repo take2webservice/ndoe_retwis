@@ -4,13 +4,13 @@
   "description": "",
   "main": "app/index.js",
   "dependencies": {
-    "dotenv": "^8.0.0"
+    "dotenv": "^8.0.0",
+    "generic-pool": "^3.7.1",
+    "ioredis": "^4.9.3"
   },
   "devDependencies": {
     "ejs": "^2.6.1",
     "eslint": "^5.16.0",
-    "generic-pool": "^3.7.1",
-    "ioredis": "^4.9.3",
     "prettier": "1.17.1"
   },
   "scripts": {
