@@ -1,36 +1,37 @@
 module.exports = class PostPage {
   constructor(posts, total, prev, next) {
-    let _posts = posts
-    let _total = total
-    let _prev = prev
-    let _next = next
-
-    this.setPosts = function(posts) {
-      _posts = posts
-    }
-    this.getPosts = function() {
-      return _posts
-    }
-
-    this.setTotla = function(total) {
-      _total = total
-    }
-    this.getTotal = function() {
-      return _total
-    }
-
-    this.setPrev = function(prev) {
-      _prev = prev
-    }
-    this.getPrev = function() {
-      return _prev
-    }
-
-    this.setNext = function(next) {
-      _next = next
-    }
-    this.getNext = function() {
-      return _next
-    }
+    this.posts = posts
+    this.total = total
+    this.prev = prev
+    this.next = next
   }
+
+  get posts() {
+    return this._posts
+  }
+  set posts(posts) {
+    this._posts = posts
+  }
+
+  get total() {
+    return this._total
+  }
+  set total(total) {
+    this._total = total
+  }
+
+  get prev() {
+    return this._prev
+  }
+  set prev(prev) {
+    this._prev = prev
+  }
+
+  get next() {
+    return this._next
+  }
+  set next(next) {
+    this._next = next
+  }
+
 }

@@ -1,45 +1,42 @@
-const RedisService = include('services/redis_service')
-const {isBlank} = include('utils/utility')
-const {getUserById} = include('services/user_service')
-
 module.exports = class Post {
   constructor(id, user, time, body) {
-    let _id = Number(id)
-    let _user = user
-    let _time = Number(time)
-    let _body = body
+    this.id = Number(id)
+    this.user =user
+    this.time = Number(time)
+    this.body = body
 
-    this.setId = function(id) {
-      _id = Number(id)
-    }
-    this.getId = function() {
-      return _id
-    }
+  }
 
-    this.setUser = function(user) {
-      _user = user
-    }
-    this.getUser = function() {
-      return _user
-    }
+  get id() {
+    return this._id
+  }
+  set id(id) {
+    this._id = id
+  }
 
-    this.setTime = function(time) {
-      _time = Number(time)
-    }
-    this.getTime = function() {
-      return _time
-    }
+  get user() {
+    return this._user
+  }
+  set  user(user) {
+    this._user = user
+  }
 
-    this.setBody = function(body) {
-      _body = body
-    }
-    this.getBody = function() {
-      return _body
-    }
+  get time() {
+    return this._time
+  }
+  set time(time) {
+    this._time = time
+  }
+
+  get body() {
+    return this._body
+  }
+  set body(body) {
+    this._body = body
   }
 
   strElapsed(currentTime) {
-    const diff = (currentTime - this.getTime()) / 1000
+    const diff = (currentTime - this.time) / 1000
     if (diff < 60) return `${diff} seconds`
     if (diff < 3600) {
       const min = Number.parseInt(diff / 60)

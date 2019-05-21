@@ -10,7 +10,7 @@
       <div id="postform">
         <% if (isMyTimeline) {%>
           <form method="POST" action="/post">
-            <%= user.getName() %>, what you are doing?
+            <%= user.name %>, what you are doing?
             <br>
             <table>
             <tr><td><textarea cols="70" rows="3" name="status"></textarea></td></tr>
@@ -23,36 +23,36 @@
           </div>
         <% } %>
         <% if (user !== null) {%>
-          <h2 class="username"><%= user.getName() %></h2>
+          <h2 class="username"><%= user.name %></h2>
           <% if (showFollow) {%>
             <% if (following) {%>
-              <a href="/unfollow?uid=<%= user.getId() %>" class="button">Stop following</a>
+              <a href="/unfollow?uid=<%= user.id %>" class="button">Stop following</a>
             <% } else { %>
-              <a href="/follow?uid=<%= user.getId() %>" class="button">Follow this user</a>
+              <a href="/follow?uid=<%= user.id %>" class="button">Follow this user</a>
             <% } %>
           <% } %>
         <% } %>
       </div>
     
-        <% page.getPosts().forEach(function (post) { %>
+        <% page.posts.forEach(function (post) { %>
           <div class="post">
-            <a class="username" href="profile?u=<%= post.getUser().getName() %>"><%= post.getUser().getName() %></a>
-            <%= post.getBody() %>
+            <a class="username" href="profile?u=<%= post.user.name %>"><%= post.user.name %></a>
+            <%= post.body %>
             <br>
             <i>posted <%= post.strElapsed(new Date()) %> ago via web</i>
           </div>
         <% }) %>
-        <% if (page.getPosts().length === 0) { %>
+        <% if (page.posts.length === 0) { %>
           <div>no posts alive</div>
         <% } %>
 
-        <% if (page.getPrev() !== false || page.getNext() !== false ){ %>
+        <% if (page.prev !== false || page.next !== false ){ %>
           <div class="rightlink">
-            <% if (page.getPrev() !== false) {%>
-              <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.getPrev() %><%= (!isMyTimeline) ? `&u=${user.getName()}` : '' %>">Newer posts &raquo;</a>
+            <% if (page.prev !== false) {%>
+              <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.prev %><%= (!isMyTimeline) ? `&u=${user.name}` : '' %>">Newer posts &raquo;</a>
             <% } %>
-            <% if (page.getNext() !== false) {%>
-              <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.getNext() %><%= (!isMyTimeline) ? `&u=${user.getName()}` : '' %>">Older posts &raquo;</a>
+            <% if (page.next !== false) {%>
+              <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.next %><%= (!isMyTimeline) ? `&u=${user.name}` : '' %>">Older posts &raquo;</a>
             <% } %>
           </div>
         <% } %>

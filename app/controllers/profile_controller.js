@@ -15,18 +15,18 @@ module.exports = {
     const currentUser = await getCurrentUser(secret)
     const showFollow = currentUser !== null
     const following = showFollow
-      ? await currentUser.isFollowing(paramUser.getId())
+      ? await currentUser.isFollowing(paramUser.id)
       : false
 
     const start = Number(params.start) ? Number(params.start) : 0
     const count = 10
     const page = await getUserPostsPage(
-      paramUser.getId(),
+      paramUser.id,
       start,
       count
     )
     const args = {
-      title: `${paramUser.getName()} page`,
+      title: `${paramUser.name} page`,
       user: paramUser,
       followersCount: await paramUser.followersCount(),
       followingCount: await paramUser.followingCount(),

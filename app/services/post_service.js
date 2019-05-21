@@ -45,14 +45,14 @@ module.exports = {
     //regist post detail
     redis.hmset(`post:${postId}`, {
       postid: postId,
-      userid: user.getId(),
+      userid: user.id,
       time: currentTime,
       body: status,
     })
   
     //add post to "followers and my" timline
-    const followers = await redis.zrange(`followers:${user.getId()}`, 0, -1)
-    followers.push(user.getId()) /* Add the post to our own posts too */
+    const followers = await redis.zrange(`followers:${user.id}`, 0, -1)
+    followers.push(user.id) /* Add the post to our own posts too */
   
     //posts:1 => user1 and followers timeline
     followers.forEach(fid => {

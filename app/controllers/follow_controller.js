@@ -13,14 +13,14 @@ module.exports = {
     if (
       isBlank(query.uid) ||
       followUser === null ||
-      followUser.getId() === user.getId()
+      followUser.id === user.id
     ) {
       return redirect(res, '/')
     }
-    await user.follow(followUser.getId())
+    await user.follow(followUser.id)
     return redirect(
       res,
-      `/profile?u=${encodeURI(followUser.getName())}`
+      `/profile?u=${encodeURI(followUser.name)}`
     )
   },
   unfollow: async (req, res) => {
@@ -33,14 +33,14 @@ module.exports = {
     if (
       isBlank(query.uid) ||
       followUser === null ||
-      followUser.getId() === user.getId()
+      followUser.id === user.id
     ) {
       return redirect(res, '/')
     }
-    await user.unfollow(followUser.getId())
+    await user.unfollow(followUser.id)
     return redirect(
       res,
-      `/profile?u=${encodeURI(followUser.getName())}`
+      `/profile?u=${encodeURI(followUser.name)}`
     )
   }
 }

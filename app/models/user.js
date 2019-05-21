@@ -2,51 +2,49 @@ const RedisService = include('services/redis_service')
 
 module.exports = class User {
   constructor(id, name, password, auth) {
-    let _id = Number(id)
-    let _name = name
-    let _password = password
-    let _auth = auth
-
-    this.setId = function(id) {
-      _id = Number(id)
-    }
-    this.getId = function() {
-      return _id
-    }
-
-    this.setName = function(name) {
-      _name = name
-    }
-    this.getName = function() {
-      return _name
-    }
-
-    this.setPassword = function(password) {
-      _password = password
-    }
-    this.getPassword = function() {
-      return _password
-    }
-
-    this.setAuth = function(auth) {
-      _auth = auth
-    }
-    this.getAuth = function() {
-      return _auth
-    }
+    this.id =  Number(id)
+    this.name = name
+    this.password = password
+    this.auth = auth
+  }
+  get id(){
+    return this._id
+  }
+  set id(id){
+    return this._id = Number(id)
   }
 
+  get name(){
+    return this._name
+  }
+  set name(name){
+    return this._name = name
+  }
+
+  get password(){
+    return this._password
+  }
+  set password(password){
+    return this._password = password
+  }
+
+  get auth(){
+    return this._auth
+  }
+  set auth(auth){
+    return this._auth = auth
+  }
 
   async followersCount() {
     const redis = await RedisService.getConnection()
-    const followers = await redis.zcard(`followers:${this.getId()}`)
+    const followers = await redis.zcard(`followers:${this.id}`)
     RedisService.relaseConnection(redis)
     return followers === null ? 0 : followers
   }
 
   async followingCount() {
     const redis = await RedisService.getConnection()
-    const following = await redis.zcard(`folloing:${this.getId()}`)
+    const following = await redis.zcard(`folloing:${this.id}`)
     RedisService.relaseConnection(redis)
     return following === null ? 0 : following
   }
@@ -54,48 +52,48 @@ module.exports = class User {
   async follow(id) {
     const redis = await RedisService.getConnection()
     const currentTime = new Date().getTime()
-    redis.zadd(`followers:${id}`, currentTime, this.getId())
-    redis.zadd(`following:${this.getId()}`, currentTime, id)
+    redis.zadd(`followers:${id}`, currentTime, this.id)
+    redis.zadd(`following:${this.id}`, currentTime, id)
     RedisService.relaseConnection(redis)
   }
 
   async unfollow(id) {
     const redis = await RedisService.getConnection()
-    redis.zrem(`followers:${id}`, this.getId())
-    redis.zrem(`following:${this.getId()}`, id)
+    redis.zrem(`followers:${id}`, this.id)
+    redis.zrem(`following:${this.id}`, id)
     RedisService.relaseConnection(redis)
   }
 
   async isFollowing(id) {
     const redis = await RedisService.getConnection()
-    const following = await redis.zscore(`folloing:${this.getId()}`, id)
+    const following = await redis.zscore(`folloing:${this.id}`, id)
     RedisService.relaseConnection(redis)
     return following === null ? false : true
   }
 
   async isFollowers(id) {
     const redis = await RedisService.getConnection()
-    const followers = await redis.zscore(`followers:${this.getId()}`, id)
+    const followers = await redis.zscore(`followers:${this.id}`, id)
     RedisService.relaseConnection(redis)
     return followers === null ? false : true
   }
 
   async doLogin(newSecret) {
     const redis = await RedisService.getConnection()
-    redis.hdel('auths', this.getAuth())
-    redis.hmset(`user:${this.getId()}`, {
-      userid: this.getId(),
-      username: this.getName(),
-      password: this.getPassword(),
+    redis.hdel('auths', this.auth)
+    redis.hmset(`user:${this.id}`, {
+      userid: this.id,
+      username: this.name,
+      password: this.password,
       auth: newSecret,
     })
-    redis.hset('auths', newSecret, this.getId())
+    redis.hset('auths', newSecret, this.id)
     RedisService.relaseConnection(redis)
   }
 
   async doLgout() {
     const redis = await RedisService.getConnection()
-    redis.hdel('auths', this.getAuth())
+    redis.hdel('auths', this.auth)
     RedisService.relaseConnection(redis)
   }
 }

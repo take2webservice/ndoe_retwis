@@ -27,7 +27,7 @@ const userTimeline = async (req, res) => {
   const start = Number(params.start) ? Number(params.start) : 0
   const count = 10
   const page = await getUserPostsPage(
-    currentUser.getId(),
+    currentUser.id,
     start,
     count
   )

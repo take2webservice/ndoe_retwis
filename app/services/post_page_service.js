@@ -5,7 +5,7 @@ const PostPage = include('models/post_page')
 const getPostsPage = async(key, start, count) => {
   const redis = await RedisService.getConnection()
   const total = await redis.llen(key)
-  const posts = await getPosts(key, start, count)
+  const posts = await getPosts(key, start, start + count)
   let next = start + count
   let prev = start < count ? false : start - count
   if (posts.length < count || total < next) {

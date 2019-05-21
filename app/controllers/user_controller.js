@@ -14,7 +14,7 @@ module.exports = {
     const user = await getUserByName(userName)
     if (user == null) return notAuth('user does not found')
     // TODO password must be hashed
-    if (user.getName() === userName && user.getPassword() == password) {
+    if (user.name === userName && user.password == password) {
       const authSecret = getRandomStr()
       user.doLogin(authSecret)
       const exppire = new Date(

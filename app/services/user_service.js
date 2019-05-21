@@ -33,7 +33,7 @@ const getCurrentUser = async(secret) => {
     if (isBlank(secret)) return null
     const userId = await getIdBySecret(secret)
     const user = await getUserById(userId)
-    if (secret === user.getAuth()) return user
+    if (secret === user.auth) return user
     return null
 }
 
