@@ -81,18 +81,18 @@ module.exports = {
     success(res, './app/views/userTop.ejs', args)
   },
   staticFile: (req, res, uri) => {
-    //abs_path is defined in /index.js
-    const filePath = path.join(abs_path(url.parse(req.url).pathname))
-    let is_first = true
+    //absPath is defined in /index.js
+    const filePath = path.join(absPath(url.parse(req.url).pathname))
+    let isFirst = true
     const stream = fs.createReadStream(filePath)
     stream.on('data', function(chunk) {
-      if (is_first) {
+      if (isFirst) {
         //we can call setHeader once only!
         res.setHeader(
           'content-type',
           mime[path.extname(filePath)] || "text/plain charset='UTF-8'"
         )
-        is_first = false
+        isFirst = false
       }
       res.write(chunk)
     })

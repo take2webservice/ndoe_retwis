@@ -1,6 +1,6 @@
 var IORedis = require('ioredis')
-const genericPool = require("generic-pool");
-require('dotenv').config({ path: abs_path('/.env') })
+const genericPool = require("generic-pool")
+require('dotenv').config({ path: absPath('/.env') })
 
 let myPool = undefined
 module.exports = {

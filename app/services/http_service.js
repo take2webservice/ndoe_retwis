@@ -1,4 +1,4 @@
-const url_lib = require('url')
+const urlLib = require('url')
 
 module.exports = {
   getPostQuery: (req) => {
@@ -19,7 +19,7 @@ module.exports = {
     })
   },
   getRequestParams: (req) => {
-    const query = url_lib.parse(req.url).query
+    const query = urlLib.parse(req.url).query
     const result = {}
     if (query === null) return result
     query.split('&').forEach(function(part) {
