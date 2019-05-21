@@ -1,6 +1,7 @@
-const RedisService = include('services/redis_service')
-const {isBlank} = include('utils/utility')
-const User = include('models/user')
+const path = require('path')
+const RedisService = require(path.resolve('app/services/redis_service'))
+const {isBlank} = require(path.resolve('app/utils/utility'))
+const User = require(path.resolve('app/models/user'))
 
 const getIdByName = async(name) => {
   if (isBlank(name)) throw new Error('name not found')

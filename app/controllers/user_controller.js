@@ -1,7 +1,8 @@
-const {getPostQuery, getCookie, redirect, notAuth} = include('services/http_service')
-const {isBlank, getRandomStr} = include('utils/utility')
-const {success} = include('services/render_service')
-const {getCurrentUser, getNewUserId, getUserByName, userExists, registUser} = include('services/user_service')
+const path = require('path')
+const {getPostQuery, getCookie, redirect, notAuth} = require(path.resolve('app/services/http_service'))
+const {isBlank, getRandomStr} = require(path.resolve('app/utils/utility'))
+const {success} = require(path.resolve('app/services/render_service'))
+const {getCurrentUser, getNewUserId, getUserByName, userExists, registUser} = require(path.resolve('app/services/user_service'))
 
 module.exports = {
   login: async  (req, res) => {

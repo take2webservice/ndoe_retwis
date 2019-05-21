@@ -1,7 +1,8 @@
-const RedisService = include('services/redis_service')
-const {isBlank} = include('utils/utility')
-const Post = include('models/post')
-const {getUserById} = include('services/user_service')
+const path = require('path')
+const RedisService = require(path.resolve('app/services/redis_service'))
+const {isBlank} = require(path.resolve('app/utils/utility'))
+const Post = require(path.resolve('app/models/post'))
+const {getUserById} = require(path.resolve('app/services/user_service'))
 
 const getPosts = async(key, start, count) => {
   const redis = await RedisService.getConnection()

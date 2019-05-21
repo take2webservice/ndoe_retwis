@@ -1,6 +1,7 @@
-const RedisService = include('services/redis_service')
-const {getPosts} = include('services/post_service')
-const PostPage = include('models/post_page')
+const path = require('path')
+const RedisService = require(path.resolve('app/services/redis_service'))
+const {getPosts} = require(path.resolve('app/services/post_service'))
+const PostPage = require(path.resolve('app/models/post_page'))
 
 const getPostsPage = async(key, start, count) => {
   const redis = await RedisService.getConnection()

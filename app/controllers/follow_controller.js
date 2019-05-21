@@ -1,6 +1,7 @@
-const {getRequestParams, getCookie, redirect} = include('services/http_service')
-const {isBlank} = include('utils/utility')
-const {isLoggedIn, getUserById, getCurrentUser} = include('services/user_service')
+const path = require('path')
+const {getRequestParams, getCookie, redirect} = require(path.resolve('app/services/http_service'))
+const {isBlank} = require(path.resolve('app/utils/utility'))
+const {isLoggedIn, getUserById, getCurrentUser} = require(path.resolve('app/services/user_service'))
 
 module.exports = {
   follow: async (req, res) => {

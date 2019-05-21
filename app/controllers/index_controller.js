@@ -1,10 +1,10 @@
 const url = require('url')
 const fs = require('fs')
 const path = require('path')
-const {success} = include('services/render_service')
-const {getRequestParams, getCookie} = include('services/http_service')
-const {isLoggedIn, getCurrentUser} = include('services/user_service')
-const {getUserPostsPage, getTimelinePage} = include('services/post_page_service')
+const {success} = require(path.resolve('app/services/render_service'))
+const {getRequestParams, getCookie} = require(path.resolve('app/services/http_service'))
+const {isLoggedIn, getCurrentUser} = require(path.resolve('app/services/user_service'))
+const {getUserPostsPage, getTimelinePage} = require(path.resolve('app/services/post_page_service'))
 
 const mime = {
   '.html': 'text/html',
@@ -82,7 +82,7 @@ module.exports = {
   },
   staticFile: (req, res, uri) => {
     //absPath is defined in /index.js
-    const filePath = path.join(absPath(url.parse(req.url).pathname))
+    const filePath = path.resolve(('app/' + url.parse(req.url).pathname))
     let isFirst = true
     const stream = fs.createReadStream(filePath)
     stream.on('data', function(chunk) {

@@ -1,4 +1,5 @@
-const RedisService = include('services/redis_service')
+const path = require('path')
+const RedisService = require(path.resolve('app/services/redis_service'))
 
 module.exports = class User {
   constructor(id, name, password, auth) {

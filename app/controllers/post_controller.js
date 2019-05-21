@@ -1,7 +1,8 @@
-const {getPostQuery, getCookie, redirect} = include('services/http_service')
-const {isBlank} = include('utils/utility')
-const {getCurrentUser} = include('services/user_service')
-const {getNewPostId, doPost} = include('services/post_service')
+const path = require('path')
+const {getPostQuery, getCookie, redirect} = require(path.resolve('app/services/http_service'))
+const {isBlank} = require(path.resolve('app/utils/utility'))
+const {getCurrentUser} = require(path.resolve('app/services/user_service'))
+const {getNewPostId, doPost} = require(path.resolve('app/services/post_service'))
 
 module.exports = {
   post: async (req, res) => {

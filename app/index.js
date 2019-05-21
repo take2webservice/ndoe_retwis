@@ -1,20 +1,12 @@
 'use strict'
-global.baseDir = __dirname
-global.absPath = function(path) {
-  return baseDir + path
-}
-global.include = function(file) {
-  return require(absPath('/' + file))
-}
-
 const http = require('http')
 const urlLib = require('url')
-
-const {index, generalTimeline, staticFile} = include('controllers/index_controller.js')
-const {post} = include('controllers/post_controller.js')
-const {follow, unfollow} = include('controllers/follow_controller.js')
-const {show} = include('controllers/profile_controller.js')
-const {login, logout, regist} = include('controllers/user_controller.js')
+const path = require('path')
+const {index, generalTimeline, staticFile} = require(path.resolve('app/controllers/index_controller.js'))
+const {post} = require(path.resolve('app/controllers/post_controller'))
+const {follow, unfollow} = require(path.resolve('app/controllers/follow_controller'))
+const {show} = require(path.resolve('app/controllers/profile_controller'))
+const {login, logout, regist} = require(path.resolve('app/controllers/user_controller'))
 
 const server = http.createServer()
 server.on('request', async function(req, res) {

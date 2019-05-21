@@ -1,8 +1,9 @@
-const {success} = include('services/render_service')
-const {getRequestParams, getCookie, redirect} = include('services/http_service')
-const {isBlank} = include('utils/utility')
-const {getCurrentUser, getUserByName} = include('services/user_service')
-const {getUserPostsPage} = include('services/post_page_service')
+const path = require('path')
+const {success} = require(path.resolve('app/services/render_service'))
+const {getRequestParams, getCookie, redirect} = require(path.resolve('app/services/http_service'))
+const {isBlank} = require(path.resolve('app/utils/utility'))
+const {getCurrentUser, getUserByName} = require(path.resolve('app/services/user_service'))
+const {getUserPostsPage} = require(path.resolve('app/services/post_page_service'))
 
 module.exports = {
   show: async (req, res) => {
