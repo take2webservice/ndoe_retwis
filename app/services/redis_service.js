@@ -2,9 +2,10 @@ var IORedis = require('ioredis')
 const genericPool = require("generic-pool");
 require('dotenv').config({ path: abs_path('/.env') })
 
-module.exports = class RedisService {
-  static async getConnection() {
-    if (this.myPool === undefined) {
+let myPool = undefined
+module.exports = {
+  getConnection: async () => {
+    if (myPool === undefined) {
       const factory = {
         create: function() {
             const args = {
@@ -27,24 +28,17 @@ module.exports = class RedisService {
           max: Number(process.env.REDIS_MAX_CON_POOL) ? Number(process.env.REDIS_MAX_CON_POOL) :  10, // maximum size of the pool
           min: Number(process.env.REDIS_MIN_CON_POOL) ? Number(process.env.REDIS_MIN_CON_POOL) : 2 // minimum size of the pool
       }
-      this.myPool = genericPool.createPool(factory, opts)
+      myPool = genericPool.createPool(factory, opts)
     }
-    return await this.myPool.acquire()
-  }
-
-  static relaseConnection(redis) {
-    if (this.myPool === undefined) return
-    this.myPool.release(redis) 
-  }
-
-  static async closeConnection() {
-    if (this.myPool === undefined) return
-    await this.myPool.drain()
-    await this.myPool.clear()
-  }
-
-  static checkPool() {
-    console.log(this.myPool.size)
-    console.log(this.myPool.available)
+    return await myPool.acquire()
+  },
+  relaseConnection: (redis) => {
+    if (myPool === undefined) return
+    myPool.release(redis) 
+  },
+  closeConnection: async () => {
+    if (myPool === undefined) return
+    await myPool.drain()
+    await myPool.clear()
   }
 }

@@ -1,7 +1,7 @@
 const url_lib = require('url')
 
-module.exports = class HttpService {
-  static getPostQuery(req) {
+module.exports = {
+  getPostQuery: (req) => {
     let data = ''
     return new Promise(function(resolve) {
       req
@@ -17,9 +17,8 @@ module.exports = class HttpService {
           resolve(result)
         })
     })
-  }
-
-  static getRequestParams(req) {
+  },
+  getRequestParams: (req) => {
     const query = url_lib.parse(req.url).query
     const result = {}
     if (query === null) return result
@@ -28,9 +27,8 @@ module.exports = class HttpService {
       result[item[0]] = decodeURIComponent(item[1])
     })
     return result
-  }
-
-  static getCookie(req) {
+  },
+  getCookie: (req) => {
     const result = {}
     const cookieStr = req.headers.cookie
     if (!cookieStr) return result
@@ -41,16 +39,14 @@ module.exports = class HttpService {
       )
     })
     return result
-  }
-
-  static redirect(res, url) {
+  },
+  redirect: (res, url) => {
     res.writeHead(302, {
       Location: url,
     })
     res.end()
-  }
-
-  static notAuth(res, message) {
+  },
+  notAuth: (res, message) =>{
     res.writeHead(401, { 'content-type': 'text/html' })
     res.write(message)
     res.end()

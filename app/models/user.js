@@ -1,5 +1,4 @@
-const RedisService = include('Services/RedisService')
-const Utility = include('Utils/Utility')
+const RedisService = include('services/redis_service')
 
 module.exports = class User {
   constructor(id, name, password, auth) {
@@ -37,55 +36,7 @@ module.exports = class User {
     }
   }
 
-  static async isLoggedIn(secret) {
-    if (Utility.isBlank(secret)) return null
-    const user = await this.currentUser(secret)
-    if (user !== null) return true
-    return false
-  }
 
-  static async getUserById(id) {
-    if (Utility.isBlank(id)) throw new Error('userId not found')
-    const redis = await RedisService.getConnection()
-    const redisUser = await redis.hgetall(`user:${id}`)
-    if (redisUser === null) {
-      RedisService.relaseConnection(redis)
-      return null
-    }
-    RedisService.relaseConnection(redis)
-    return new User(id, redisUser.username, redisUser.password, redisUser.auth)
-  }
-
-  static async getIdByName(name) {
-    if (Utility.isBlank(name)) throw new Error('name not found')
-    const redis = await RedisService.getConnection()
-    const id = await redis.hget(`users`, name)
-    RedisService.relaseConnection(redis)
-    return id
-  }
-
-  static async getUserByName(name) {
-    if (Utility.isBlank(name)) throw new Error('name not found')
-    const id = await this.getIdByName(name)
-    const user = await this.getUserById(id)
-    return user
-  }
-
-  static async getIdBySecret(secret) {
-    if (Utility.isBlank(secret)) throw new Error('secret not found')
-    const redis = await RedisService.getConnection()
-    const id = await redis.hget('auths', secret)
-    RedisService.relaseConnection(redis)
-    return id
-  }
-
-  static async currentUser(secret) {
-    if (Utility.isBlank(secret)) return null
-    const userId = await this.getIdBySecret(secret)
-    const user = await this.getUserById(userId)
-    if (secret === user.getAuth()) return user
-    return null
-  }
   async followersCount() {
     const redis = await RedisService.getConnection()
     const followers = await redis.zcard(`followers:${this.getId()}`)
@@ -129,27 +80,6 @@ module.exports = class User {
     return followers === null ? false : true
   }
 
-  static async registUser(userName, userId, currentTime, password, newSecret) {
-    const redis = await RedisService.getConnection()
-    redis.hset('users', userName, userId)
-    redis.zadd('users_by_time', currentTime, userName)
-    redis.hmset(`user:${userId}`, {
-      userid: userId,
-      username: userName,
-      password: password,
-      auth: newSecret,
-    })
-    redis.hset('auths', newSecret, userId)
-    RedisService.relaseConnection(redis)
-  }
-
-  static async getNewUserId() {
-    const redis = await RedisService.getConnection()
-    const userId = await redis.incr('next_user_id')
-    RedisService.relaseConnection(redis)
-    return userId
-  }
-
   async doLogin(newSecret) {
     const redis = await RedisService.getConnection()
     redis.hdel('auths', this.getAuth())
@@ -167,11 +97,5 @@ module.exports = class User {
     const redis = await RedisService.getConnection()
     redis.hdel('auths', this.getAuth())
     RedisService.relaseConnection(redis)
-  }
-
-  static async userExists(name) {
-    if (Utility.isBlank(name)) throw new Error('name not found')
-    const id = await this.getIdByName(name)
-    return id !== null
   }
 }
