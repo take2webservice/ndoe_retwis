@@ -80,7 +80,7 @@ module.exports = {
     }
     success(res, './app/views/userTop.ejs', args)
   },
-  staticFile: async (req, res, uri) => {
+  staticFile: (req, res, uri) => {
     //abs_path is defined in /index.js
     const filePath = path.join(abs_path(url.parse(req.url).pathname))
     let is_first = true

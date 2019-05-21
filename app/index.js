@@ -25,33 +25,33 @@ server.on('request', async function(req, res) {
     switch (uri) {
       case '/':
       case '/index':
-        await index(req, res)
+        index(req, res)
         break
       case '/profile':
         switch (method) {
           case 'GET':
-            await show(req, res)
+            show(req, res)
             break
         }
         break
       case '/register':
         switch (method) {
           case 'POST':
-            await regist(req, res)
+            regist(req, res)
             break
         }
         break
       case '/post':
         switch (method) {
           case 'POST':
-            await post(req, res)
+            post(req, res)
             break
         }
         break
       case '/login':
         switch (method) {
           case 'POST':
-            await login(req, res)
+            login(req, res)
             break
         }
         break
@@ -59,28 +59,28 @@ server.on('request', async function(req, res) {
         switch (method) {
           case 'GET':
           case 'POST':
-            await logout(req, res)
+            logout(req, res)
             break
         }
         break
       case '/follow':
         switch (method) {
           case 'GET':
-            await follow(req, res)
+            follow(req, res)
             break
         }
         break
       case '/unfollow':
         switch (method) {
           case 'GET':
-            await unfollow(req, res)
+            unfollow(req, res)
             break
           }
         break
       case '/timeline':
         switch (method) {
           case 'GET':
-            await generalTimeline(req, res)
+            generalTimeline(req, res)
             break
         }
         break

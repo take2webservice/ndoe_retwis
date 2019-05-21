@@ -52,15 +52,15 @@ module.exports = class User {
   async follow(id) {
     const redis = await RedisService.getConnection()
     const currentTime = new Date().getTime()
-    redis.zadd(`followers:${id}`, currentTime, this.id)
-    redis.zadd(`following:${this.id}`, currentTime, id)
+    await redis.zadd(`followers:${id}`, currentTime, this.id)
+    await redis.zadd(`following:${this.id}`, currentTime, id)
     RedisService.relaseConnection(redis)
   }
 
   async unfollow(id) {
     const redis = await RedisService.getConnection()
-    redis.zrem(`followers:${id}`, this.id)
-    redis.zrem(`following:${this.id}`, id)
+    await redis.zrem(`followers:${id}`, this.id)
+    await redis.zrem(`following:${this.id}`, id)
     RedisService.relaseConnection(redis)
   }
 

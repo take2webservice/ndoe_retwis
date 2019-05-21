@@ -16,12 +16,12 @@ const getPostsPage = async(key, start, count) => {
 }
 
 module.exports = {
-  getTimelinePage: async (start, count) => {
+  getTimelinePage: (start, count) => {
     const key = 'timeline'
-    return await getPostsPage(key, start, count)
+    return getPostsPage(key, start, count)
   },
-  getUserPostsPage: async (id, start, count) => {
+  getUserPostsPage: (id, start, count) => {
     const key = `posts:${id}`
-    return await getPostsPage(key, start, count)
+    return getPostsPage(key, start, count)
   }
 }

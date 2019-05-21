@@ -29,7 +29,7 @@ const getPosts = async(key, start, count) => {
 
 module.exports = {
   getPosts: getPosts,
-  getTimeline: async (start, count) => {
+  getTimeline: (start, count) => {
     const key = 'timeline'
     return getPosts(key, start, count)
   },
