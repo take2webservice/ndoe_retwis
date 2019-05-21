@@ -16,12 +16,13 @@
         "node": true
     },
     "globals": {
-        "base_dir": true,
-        "abs_path": true,
+        "baseDir": true,
+        "absPath": true,
         "include": true
     },
     "rules": {
         "no-console": "off",
-        "semi": ["error", "never"]
+        "semi": ["error", "never"],
+        "camelcase": [2, {"properties": "always"}]
     }
 }
