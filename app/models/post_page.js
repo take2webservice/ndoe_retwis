@@ -33,5 +33,4 @@ module.exports = class PostPage {
   set next(next) {
     this._next = next
   }
-
 }

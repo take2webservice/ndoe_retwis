@@ -1,7 +1,6 @@
 const fs = require('fs')
 const ejs = require('ejs')
 
-
 module.exports = {
   success: (res, ejsFile, args) => {
     res.statusCode = 200
@@ -10,5 +9,5 @@ module.exports = {
     const html = ejs.render(template, args)
     res.write(html)
     res.end()
-  }
+  },
 }

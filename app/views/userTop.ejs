@@ -46,12 +46,12 @@
           <div>no posts alive</div>
         <% } %>
 
-        <% if (page.prev !== false || page.next !== false ){ %>
+        <% if (page.prev >= 0  || page.next >= 0 ){ %>
           <div class="rightlink">
-            <% if (page.prev !== false) {%>
+            <% if (page.prev >= 0) {%>
               <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.prev %><%= (!isMyTimeline) ? `&u=${user.name}` : '' %>">Newer posts &raquo;</a>
             <% } %>
-            <% if (page.next !== false) {%>
+            <% if (page.next >= 0) {%>
               <a href="<%= isMyTimeline ? '/' : '/profile' %>?start=<%= page.next %><%= (!isMyTimeline) ? `&u=${user.name}` : '' %>">Older posts &raquo;</a>
             <% } %>
           </div>

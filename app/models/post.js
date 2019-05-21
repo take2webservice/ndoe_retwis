@@ -1,10 +1,9 @@
 module.exports = class Post {
   constructor(id, user, time, body) {
     this.id = Number(id)
-    this.user =user
+    this.user = user
     this.time = Number(time)
     this.body = body
-
   }
 
   get id() {
@@ -17,7 +16,7 @@ module.exports = class Post {
   get user() {
     return this._user
   }
-  set  user(user) {
+  set user(user) {
     this._user = user
   }
 

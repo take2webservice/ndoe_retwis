@@ -1,10 +1,16 @@
 const url = require('url')
 const fs = require('fs')
 const path = require('path')
-const {success} = require(path.resolve('app/services/render_service'))
-const {getRequestParams, getCookie} = require(path.resolve('app/services/http_service'))
-const {isLoggedIn, getCurrentUser} = require(path.resolve('app/services/user_service'))
-const {getUserPostsPage, getTimelinePage} = require(path.resolve('app/services/post_page_service'))
+const { success } = require(path.resolve('app/services/render_service'))
+const { getRequestParams, getCookie } = require(path.resolve(
+  'app/services/http_service'
+))
+const { isLoggedIn, getCurrentUser } = require(path.resolve(
+  'app/services/user_service'
+))
+const { getUserPostsPage, getTimelinePage } = require(path.resolve(
+  'app/services/post_page_service'
+))
 
 const mime = {
   '.html': 'text/html',
@@ -24,19 +30,15 @@ const userTimeline = async (req, res) => {
     throw new Error('redis secret and cookie secret not matched')
 
   const params = getRequestParams(req)
-  const start = Number(params.start) ? Number(params.start) : 0
+  const start = Number(params.start) || 0
   const count = 10
-  const page = await getUserPostsPage(
-    currentUser.id,
-    start,
-    count
-  )
+  const page = await getUserPostsPage(currentUser.id, start, count)
   const args = {
     title: 'user top',
     user: currentUser,
     followersCount: await currentUser.followersCount(),
     followingCount: await currentUser.followingCount(),
-    page: page,
+    page,
     showFollow: false,
     following: false,
     isMyTimeline: true,
@@ -62,7 +64,7 @@ module.exports = {
     const secret = getCookie(req).auth
 
     const params = getRequestParams(req)
-    const start = Number(params.start) ? Number(params.start) : 0
+    const start = Number(params.start) || 0
     const count = 10
     const page = await getTimelinePage(start, count)
 
@@ -71,7 +73,7 @@ module.exports = {
       user: null,
       followersCount: null,
       followingCount: null,
-      page: page,
+      page,
       showFollow: false,
       following: false,
       isMyTimeline: false,
@@ -82,7 +84,7 @@ module.exports = {
   },
   staticFile: (req, res, uri) => {
     //absPath is defined in /index.js
-    const filePath = path.resolve(('app/' + url.parse(req.url).pathname))
+    const filePath = path.resolve('app/' + url.parse(req.url).pathname)
     let isFirst = true
     const stream = fs.createReadStream(filePath)
     stream.on('data', function(chunk) {
@@ -104,5 +106,5 @@ module.exports = {
       res.write(uri + 'does not found!!')
       res.end()
     })
-  }
+  },
 }

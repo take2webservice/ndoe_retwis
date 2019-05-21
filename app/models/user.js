@@ -3,51 +3,51 @@ const RedisService = require(path.resolve('app/services/redis_service'))
 
 module.exports = class User {
   constructor(id, name, password, auth) {
-    this.id =  Number(id)
+    this.id = Number(id)
     this.name = name
     this.password = password
     this.auth = auth
   }
-  get id(){
+  get id() {
     return this._id
   }
-  set id(id){
-    return this._id = Number(id)
+  set id(id) {
+    return (this._id = Number(id))
   }
 
-  get name(){
+  get name() {
     return this._name
   }
-  set name(name){
-    return this._name = name
+  set name(name) {
+    return (this._name = name)
   }
 
-  get password(){
+  get password() {
     return this._password
   }
-  set password(password){
-    return this._password = password
+  set password(password) {
+    return (this._password = password)
   }
 
-  get auth(){
+  get auth() {
     return this._auth
   }
-  set auth(auth){
-    return this._auth = auth
+  set auth(auth) {
+    return (this._auth = auth)
   }
 
   async followersCount() {
     const redis = await RedisService.getConnection()
     const followers = await redis.zcard(`followers:${this.id}`)
     RedisService.relaseConnection(redis)
-    return followers === null ? 0 : followers
+    return followers || 0
   }
 
   async followingCount() {
     const redis = await RedisService.getConnection()
     const following = await redis.zcard(`folloing:${this.id}`)
     RedisService.relaseConnection(redis)
-    return following === null ? 0 : following
+    return following || 0
   }
 
   async follow(id) {
@@ -69,14 +69,14 @@ module.exports = class User {
     const redis = await RedisService.getConnection()
     const following = await redis.zscore(`folloing:${this.id}`, id)
     RedisService.relaseConnection(redis)
-    return following === null ? false : true
+    return !!following
   }
 
   async isFollowers(id) {
     const redis = await RedisService.getConnection()
     const followers = await redis.zscore(`followers:${this.id}`, id)
     RedisService.relaseConnection(redis)
-    return followers === null ? false : true
+    return !!followers
   }
 
   async doLogin(newSecret) {

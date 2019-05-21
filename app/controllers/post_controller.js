@@ -1,8 +1,12 @@
 const path = require('path')
-const {getPostQuery, getCookie, redirect} = require(path.resolve('app/services/http_service'))
-const {isBlank} = require(path.resolve('app/utils/utility'))
-const {getCurrentUser} = require(path.resolve('app/services/user_service'))
-const {getNewPostId, doPost} = require(path.resolve('app/services/post_service'))
+const { getPostQuery, getCookie, redirect } = require(path.resolve(
+  'app/services/http_service'
+))
+const { isBlank } = require(path.resolve('app/utils/utility'))
+const { getCurrentUser } = require(path.resolve('app/services/user_service'))
+const { getNewPostId, doPost } = require(path.resolve(
+  'app/services/post_service'
+))
 
 module.exports = {
   post: async (req, res) => {
@@ -17,5 +21,5 @@ module.exports = {
     const currentTime = new Date().getTime()
     await doPost(postId, user, status, currentTime)
     return redirect(res, '/')
-  }
+  },
 }

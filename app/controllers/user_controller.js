@@ -1,14 +1,21 @@
 const path = require('path')
-const {getPostQuery, getCookie, redirect, notAuth} = require(path.resolve('app/services/http_service'))
-const {isBlank, getRandomStr} = require(path.resolve('app/utils/utility'))
-const {success} = require(path.resolve('app/services/render_service'))
-const {getCurrentUser, getNewUserId, getUserByName, userExists, registUser} = require(path.resolve('app/services/user_service'))
+const { getPostQuery, getCookie, redirect, notAuth } = require(path.resolve(
+  'app/services/http_service'
+))
+const { isBlank, getRandomStr } = require(path.resolve('app/utils/utility'))
+const { success } = require(path.resolve('app/services/render_service'))
+const {
+  getCurrentUser,
+  getNewUserId,
+  getUserByName,
+  userExists,
+  registerUser,
+} = require(path.resolve('app/services/user_service'))
 
 module.exports = {
-  login: async  (req, res) => {
+  login: async (req, res) => {
     const query = await getPostQuery(req)
-    const userName = query.username
-    const password = query.password
+    const { username: userName, password } = query
     if (isBlank(userName) || isBlank(password)) {
       return notAuth('username or password not found')
     }
@@ -26,7 +33,7 @@ module.exports = {
     }
     notAuth(res, 'Not authenticated')
   },
-  logout: async  (req, res) => {
+  logout: async (req, res) => {
     const paramSecret = getCookie(req).auth
     const user = await getCurrentUser(paramSecret)
     await user.doLgout()
@@ -36,17 +43,13 @@ module.exports = {
     res.setHeader('Set-Cookie', [`auth=${paramSecret};  expires=${expire}`])
     return redirect(res, '/')
   },
-  regist: async  (req, res) => {
+  register: async (req, res) => {
     const query = await getPostQuery(req)
 
     const userName = query.username
     const password = query.password
     const password2 = query.password2
-    if (
-      isBlank(userName) ||
-      isBlank(password) ||
-      isBlank(password2)
-    ) {
+    if (isBlank(userName) || isBlank(password) || isBlank(password2)) {
       throw new Error('input error')
     }
 
@@ -60,15 +63,15 @@ module.exports = {
     const authSecret = getRandomStr()
     const currentTime = new Date().getTime()
     const userId = await getNewUserId()
-    await registUser(userName, userId, currentTime, password, authSecret)
+    await registerUser(userName, userId, currentTime, password, authSecret)
     const expire = new Date(currentTime + 3600 * 31 * 1000).toUTCString()
     res.setHeader('Set-Cookie', [`auth=${authSecret};  expires=${expire}`])
 
     success(res, './app/views/registed.ejs', {
-      title: 'registet was successed',
-      userName: userName,
+      title: 'register was successed',
+      userName,
       filename: './registed.ejs',
       isLoggedin: true,
     })
-  }
+  },
 }

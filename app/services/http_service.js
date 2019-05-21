@@ -1,9 +1,9 @@
 const urlLib = require('url')
 
 module.exports = {
-  getPostQuery: (req) => {
-    let data = ''
+  getPostQuery: req => {
     return new Promise(function(resolve) {
+      let data = ''
       req
         .on('data', function(chunk) {
           data += chunk
@@ -18,7 +18,7 @@ module.exports = {
         })
     })
   },
-  getRequestParams: (req) => {
+  getRequestParams: req => {
     const query = urlLib.parse(req.url).query
     const result = {}
     if (query === null) return result
@@ -28,7 +28,7 @@ module.exports = {
     })
     return result
   },
-  getCookie: (req) => {
+  getCookie: req => {
     const result = {}
     const cookieStr = req.headers.cookie
     if (!cookieStr) return result
@@ -46,9 +46,9 @@ module.exports = {
     })
     res.end()
   },
-  notAuth: (res, message) =>{
+  notAuth: (res, message) => {
     res.writeHead(401, { 'content-type': 'text/html' })
     res.write(message)
     res.end()
-  }
+  },
 }

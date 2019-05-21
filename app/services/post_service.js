@@ -1,10 +1,10 @@
 const path = require('path')
 const RedisService = require(path.resolve('app/services/redis_service'))
-const {isBlank} = require(path.resolve('app/utils/utility'))
+const { isBlank } = require(path.resolve('app/utils/utility'))
 const Post = require(path.resolve('app/models/post'))
-const {getUserById} = require(path.resolve('app/services/user_service'))
+const { getUserById } = require(path.resolve('app/services/user_service'))
 
-const getPosts = async(key, start, count) => {
+const getPosts = async (key, start, count) => {
   const redis = await RedisService.getConnection()
   const postIds = await redis.lrange(key, start, count - 1)
   const posts = []
@@ -42,7 +42,7 @@ module.exports = {
   },
   doPost: async (postId, user, status, currentTime) => {
     const redis = await RedisService.getConnection()
-  
+
     //regist post detail
     redis.hmset(`post:${postId}`, {
       postid: postId,
@@ -50,19 +50,19 @@ module.exports = {
       time: currentTime,
       body: status,
     })
-  
+
     //add post to "followers and my" timline
     const followers = await redis.zrange(`followers:${user.id}`, 0, -1)
     followers.push(user.id) /* Add the post to our own posts too */
-  
+
     //posts:1 => user1 and followers timeline
     followers.forEach(fid => {
       redis.lpush(`posts:${fid}`, postId)
     })
-  
+
     // add post to global timeline
     redis.lpush('timeline', postId)
     redis.ltrim('timeline', 0, 1000) //timeline saves 1000 posts.
     RedisService.relaseConnection(redis)
-  }
+  },
 }

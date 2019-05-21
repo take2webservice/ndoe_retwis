@@ -1,9 +1,9 @@
 const path = require('path')
 const RedisService = require(path.resolve('app/services/redis_service'))
-const {isBlank} = require(path.resolve('app/utils/utility'))
+const { isBlank } = require(path.resolve('app/utils/utility'))
 const User = require(path.resolve('app/models/user'))
 
-const getIdByName = async(name) => {
+const getIdByName = async name => {
   if (isBlank(name)) throw new Error('name not found')
   const redis = await RedisService.getConnection()
   const id = await redis.hget(`users`, name)
@@ -11,43 +11,42 @@ const getIdByName = async(name) => {
   return id
 }
 
-const getUserById = async(id) => {
-    if (isBlank(id)) throw new Error('userId not found')
-    const redis = await RedisService.getConnection()
-    const redisUser = await redis.hgetall(`user:${id}`)
-    if (redisUser === null) {
-      RedisService.relaseConnection(redis)
-      return null
-    }
+const getUserById = async id => {
+  if (isBlank(id)) throw new Error('userId not found')
+  const redis = await RedisService.getConnection()
+  const redisUser = await redis.hgetall(`user:${id}`)
+  if (redisUser === null) {
     RedisService.relaseConnection(redis)
-    return new User(id, redisUser.username, redisUser.password, redisUser.auth)
+    return null
+  }
+  RedisService.relaseConnection(redis)
+  return new User(id, redisUser.username, redisUser.password, redisUser.auth)
 }
-const getIdBySecret = async(secret) => {
-    if (isBlank(secret)) throw new Error('secret not found')
-    const redis = await RedisService.getConnection()
-    const id = await redis.hget('auths', secret)
-    RedisService.relaseConnection(redis)
-    return id
+const getIdBySecret = async secret => {
+  if (isBlank(secret)) throw new Error('secret not found')
+  const redis = await RedisService.getConnection()
+  const id = await redis.hget('auths', secret)
+  RedisService.relaseConnection(redis)
+  return id
 }
 
-const getCurrentUser = async(secret) => {
-    if (isBlank(secret)) return null
-    const userId = await getIdBySecret(secret)
-    const user = await getUserById(userId)
-    if (secret === user.auth) return user
-    return null
+const getCurrentUser = async secret => {
+  if (isBlank(secret)) return null
+  const userId = await getIdBySecret(secret)
+  const user = await getUserById(userId)
+  if (secret === user.auth) return user
+  return null
 }
 
 module.exports = {
-  isLoggedIn: async (secret) => {
-    if (isBlank(secret)) return null
+  isLoggedIn: async secret => {
+    if (isBlank(secret)) return false
     const user = await getCurrentUser(secret)
-    if (user !== null) return true
-    return false
+    return user !== null
   },
   getUserById: getUserById,
   getIdByName: getIdByName,
-  getUserByName: async (name) => {
+  getUserByName: async name => {
     if (isBlank(name)) throw new Error('name not found')
     const id = await getIdByName(name)
     const user = await getUserById(id)
@@ -55,7 +54,7 @@ module.exports = {
   },
   getIdBySecret: getIdBySecret,
   getCurrentUser: getCurrentUser,
-  registUser: async (userName, userId, currentTime, password, newSecret) => {
+  registerUser: async (userName, userId, currentTime, password, newSecret) => {
     const redis = await RedisService.getConnection()
     redis.hset('users', userName, userId)
     redis.zadd('users_by_time', currentTime, userName)
@@ -74,9 +73,9 @@ module.exports = {
     RedisService.relaseConnection(redis)
     return userId
   },
-  userExists: async (name) => {
+  userExists: async name => {
     if (isBlank(name)) throw new Error('name not found')
     const id = await getIdByName(name)
     return id !== null
-  }
+  },
 }
