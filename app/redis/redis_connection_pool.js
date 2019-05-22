@@ -54,6 +54,15 @@ class RedisConnectionPool {
       return await this.myPool.acquire()
   }
 
+  async execute(f) {
+    const redis = await this.connect()
+    try {
+      return await f(redis)
+    } finally {
+      this.relaseConnection(redis)
+    }
+  }
+
   relaseConnection(connection) {
       if (this.myPool === undefined) return
       this.myPool.release(connection) 

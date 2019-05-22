@@ -38,64 +38,88 @@ module.exports = class User {
   }
 
   async followersCount() {
-    const redis = await redisConnectionPool.connect()
-    const followers = await redis.zcard(`followers:${this.id}`)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    const followers = await redisConnectionPool.execute(
+      (redis) => {
+        return redis.zcard(`followers:${self.id}`)
+      }
+    )
     return followers || 0
   }
 
   async followingCount() {
-    const redis = await redisConnectionPool.connect()
-    const following = await redis.zcard(`folloing:${this.id}`)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    const following = await redisConnectionPool.execute(
+      (redis) => {
+        return redis.zcard(`folloing:${self.id}`)
+      }
+    )
     return following || 0
   }
 
   async follow(id) {
-    const redis = await redisConnectionPool.connect()
-    const currentTime = new Date().getTime()
-    await redis.zadd(`followers:${id}`, currentTime, this.id)
-    await redis.zadd(`following:${this.id}`, currentTime, id)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    await redisConnectionPool.execute(
+      (redis) => {
+        const currentTime = new Date().getTime()
+        redis.zadd(`followers:${id}`, currentTime, self.id)
+        redis.zadd(`following:${self.id}`, currentTime, id)
+      }
+    )
   }
 
   async unfollow(id) {
-    const redis = await redisConnectionPool.connect()
-    await redis.zrem(`followers:${id}`, this.id)
-    await redis.zrem(`following:${this.id}`, id)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    await redisConnectionPool.execute(
+      (redis) => {
+        redis.zrem(`followers:${id}`, self.id)
+        redis.zrem(`following:${self.id}`, id)
+      }
+    )
   }
 
   async isFollowing(id) {
-    const redis = await redisConnectionPool.connect()
-    const following = await redis.zscore(`folloing:${this.id}`, id)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    const following = await redisConnectionPool.execute(
+      (redis) => {
+        return redis.zscore(`folloing:${self.id}`, id)
+      }
+    )
     return !!following
   }
 
   async isFollowers(id) {
-    const redis = await redisConnectionPool.connect()
-    const followers = await redis.zscore(`followers:${this.id}`, id)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    const followers = await redisConnectionPool.execute(
+      (redis) => {
+        return redis.zscore(`followers:${self.id}`, id)
+      }
+    )
     return !!followers
   }
 
   async doLogin(newSecret) {
-    const redis = await redisConnectionPool.connect()
-    redis.hdel('auths', this.auth)
-    redis.hmset(`user:${this.id}`, {
-      userid: this.id,
-      username: this.name,
-      password: this.password,
-      auth: newSecret,
-    })
-    redis.hset('auths', newSecret, this.id)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    await redisConnectionPool.execute(
+      (redis) => {
+        redis.hdel('auths', self.auth)
+        redis.hmset(`user:${self.id}`, {
+          userid: self.id,
+          username: self.name,
+          password: self.password,
+          auth: newSecret,
+        })
+        redis.hset('auths', newSecret, self.id)
+      }
+    )
   }
 
   async doLgout() {
-    const redis = await redisConnectionPool.connect()
-    redis.hdel('auths', this.auth)
-    redisConnectionPool.relaseConnection(redis)
+    const self = this
+    await redisConnectionPool.execute(
+      (redis) => {
+        redis.hdel('auths', self.auth)
+      }
+    )
   }
 }
