@@ -2,18 +2,19 @@ const urlLib = require('url')
 
 module.exports = {
   getPostQuery: req => {
-    return new Promise(function(resolve) {
+    return new Promise(function(resolve) {  
       let data = ''
       req
         .on('data', function(chunk) {
           data += chunk
         })
         .on('end', function() {
-          const result = {}
-          data.split('&').forEach(function(part) {
-            const item = part.split('=')
-            result[item[0]] = decodeURIComponent(item[1])
-          })
+          const result = data.split('&')
+            .map(part => part.split('='))
+            .reduce((prev, [key, value]) => {
+                return { ...prev, [key]: decodeURIComponent(value) }
+                // ... is "spread syntax ""
+            }, {})
           resolve(result)
         })
     })
@@ -32,13 +33,10 @@ module.exports = {
     const result = {}
     const cookieStr = req.headers.cookie
     if (!cookieStr) return result
-    cookieStr.split(' ').forEach(function(cookie) {
-      var parts = cookie.split('=')
-      result[parts.shift().trim()] = decodeURI(
-        parts.join('=').replace(/;\s*$/, '')
-      )
-    })
-    return result
+    return cookieStr.split(' ').map(e => e.split('='))
+    .reduce((prev, [key, value]) => {
+      return {...prev, [key.trim()]: decodeURI(value.replace(/;\s*$/, ''))}
+    }, {})
   },
   redirect: (res, url) => {
     res.writeHead(302, {
