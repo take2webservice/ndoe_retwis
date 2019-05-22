@@ -39,7 +39,7 @@
             <a class="username" href="profile?u=<%= post.user.name %>"><%= post.user.name %></a>
             <%= post.body %>
             <br>
-            <i>posted <%= post.strElapsed(new Date()) %> ago via web</i>
+            <i>posted <%= strElapsed((new Date()).getTime(), post.time) %> ago via web</i>
           </div>
         <% }) %>
         <% if (page.posts.length === 0) { %>

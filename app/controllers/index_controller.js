@@ -1,6 +1,7 @@
 const url = require('url')
 const fs = require('fs')
 const path = require('path')
+const { strElapsed } = require(path.resolve('app/utils/utility'))
 const { success } = require(path.resolve('app/services/render_service'))
 const { getRequestParams, getCookie } = require(path.resolve(
   'app/services/http_service'
@@ -44,6 +45,7 @@ const userTimeline = async (req, res) => {
     isMyTimeline: true,
     filename: './userTop.ejs',
     isLoggedin: true,
+    strElapsed: strElapsed
   }
   success(res, './app/views/userTop.ejs', args)
 }
@@ -79,6 +81,7 @@ module.exports = {
       isMyTimeline: false,
       filename: './userTop.ejs',
       isLoggedin: await isLoggedIn(secret),
+      strElapsed: strElapsed
     }
     success(res, './app/views/userTop.ejs', args)
   },

@@ -13,7 +13,6 @@ const createPoolFactory = (config) => {
           if (config.REDIS_PASSWORD) {
             args.password = config.REDIS_PASSWORD //RedisPassword
           }
-          console.log("create_new connection")
           return new IORedis(args)
       },
       destroy: function(redis) {

@@ -17,12 +17,8 @@ const getPosts = async (key, start, count) => {
         let user
         const userId = redisPost.userid
         if (isBlank(userId)) continue
-        if (users[userId]) {
-          user = users[userId]
-        } else {
-          user = await getUserById(userId)
-          users[redisPost.userid] = user
-        }
+        user = users[userId] || await getUserById(userId)
+        users[redisPost.userid] = user
         const post = new Post(id, user, redisPost.time, redisPost.body)
         posts.push(post)
       }

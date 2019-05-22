@@ -3,7 +3,7 @@ const { success } = require(path.resolve('app/services/render_service'))
 const { getRequestParams, getCookie, redirect } = require(path.resolve(
   'app/services/http_service'
 ))
-const { isBlank } = require(path.resolve('app/utils/utility'))
+const { isBlank, strElapsed } = require(path.resolve('app/utils/utility'))
 const { getCurrentUser, getUserByName } = require(path.resolve(
   'app/services/user_service'
 ))
@@ -39,6 +39,7 @@ module.exports = {
       isMyTimeline: false,
       filename: './userTop.ejs',
       isLoggedin: currentUser !== null,
+      strElapsed: strElapsed
     }
     success(res, './app/views/userTop.ejs', args)
   },

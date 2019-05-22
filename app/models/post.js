@@ -33,19 +33,4 @@ module.exports = class Post {
   set body(body) {
     this._body = body
   }
-
-  strElapsed(currentTime) {
-    const diff = (currentTime - this.time) / 1000
-    if (diff < 60) return `${diff} seconds`
-    if (diff < 3600) {
-      const min = Number.parseInt(diff / 60)
-      return `${min} minute${min > 1 ? 's' : ''}`
-    }
-    if (diff < 3600 * 24) {
-      const hour = Number.parseInt(diff / 3600)
-      return `${hour} hour${hour > 1 ? 's' : ''}`
-    }
-    const day = Number.parseInt(diff / (3600 * 24))
-    return `${day} hour${day > 1 ? 's' : ''}`
-  }
 }
