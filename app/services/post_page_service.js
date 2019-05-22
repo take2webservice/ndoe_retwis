@@ -1,10 +1,10 @@
 const path = require('path')
-const RedisService = require(path.resolve('app/services/redis_service'))
 const { getPosts } = require(path.resolve('app/services/post_service'))
 const PostPage = require(path.resolve('app/models/post_page'))
+const redisConnectionPool = require(path.resolve('app/redis/index'))
 
 const getPostsPage = async (key, start, count) => {
-  const redis = await RedisService.getConnection()
+  const redis = await redisConnectionPool.connect()
   const total = await redis.llen(key)
   const posts = await getPosts(key, start, start + count)
   let next = start + count
@@ -12,7 +12,7 @@ const getPostsPage = async (key, start, count) => {
   if (posts.length < count || total < next) {
     next = -1
   }
-  RedisService.relaseConnection(redis)
+  redisConnectionPool.relaseConnection(redis)
   return new PostPage(posts, total, prev, next)
 }
 

@@ -1,32 +1,32 @@
 const path = require('path')
-const RedisService = require(path.resolve('app/services/redis_service'))
 const { isBlank } = require(path.resolve('app/utils/utility'))
 const User = require(path.resolve('app/models/user'))
+const redisConnectionPool = require(path.resolve('app/redis/index'))
 
 const getIdByName = async name => {
   if (isBlank(name)) throw new Error('name not found')
-  const redis = await RedisService.getConnection()
+  const redis = await redisConnectionPool.connect()
   const id = await redis.hget(`users`, name)
-  RedisService.relaseConnection(redis)
+  redisConnectionPool.relaseConnection(redis)
   return id
 }
 
 const getUserById = async id => {
   if (isBlank(id)) throw new Error('userId not found')
-  const redis = await RedisService.getConnection()
+  const redis = await redisConnectionPool.connect()
   const redisUser = await redis.hgetall(`user:${id}`)
   if (redisUser === null) {
-    RedisService.relaseConnection(redis)
+    redisConnectionPool.relaseConnection(redis)
     return null
   }
-  RedisService.relaseConnection(redis)
+  redisConnectionPool.relaseConnection(redis)
   return new User(id, redisUser.username, redisUser.password, redisUser.auth)
 }
 const getIdBySecret = async secret => {
   if (isBlank(secret)) throw new Error('secret not found')
-  const redis = await RedisService.getConnection()
+  const redis = await redisConnectionPool.connect()
   const id = await redis.hget('auths', secret)
-  RedisService.relaseConnection(redis)
+  redisConnectionPool.relaseConnection(redis)
   return id
 }
 
@@ -55,7 +55,8 @@ module.exports = {
   getIdBySecret: getIdBySecret,
   getCurrentUser: getCurrentUser,
   registerUser: async (userName, userId, currentTime, password, newSecret) => {
-    const redis = await RedisService.getConnection()
+    const redis = await redisConnectionPool.connect()
+  
     redis.hset('users', userName, userId)
     redis.zadd('users_by_time', currentTime, userName)
     redis.hmset(`user:${userId}`, {
@@ -65,12 +66,12 @@ module.exports = {
       auth: newSecret,
     })
     redis.hset('auths', newSecret, userId)
-    RedisService.relaseConnection(redis)
+    redisConnectionPool.relaseConnection(redis)
   },
   getNewUserId: async () => {
-    const redis = await RedisService.getConnection()
+    const redis = await redisConnectionPool.connect()
     const userId = await redis.incr('next_user_id')
-    RedisService.relaseConnection(redis)
+    redisConnectionPool.relaseConnection(redis)
     return userId
   },
   userExists: async name => {

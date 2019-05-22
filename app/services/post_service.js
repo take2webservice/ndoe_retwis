@@ -1,11 +1,12 @@
 const path = require('path')
-const RedisService = require(path.resolve('app/services/redis_service'))
 const { isBlank } = require(path.resolve('app/utils/utility'))
 const Post = require(path.resolve('app/models/post'))
 const { getUserById } = require(path.resolve('app/services/user_service'))
+const redisConnectionPool = require(path.resolve('app/redis/index'))
+
 
 const getPosts = async (key, start, count) => {
-  const redis = await RedisService.getConnection()
+  const redis = await redisConnectionPool.connect()
   const postIds = await redis.lrange(key, start, count - 1)
   const posts = []
   const users = {} //cache
@@ -24,7 +25,7 @@ const getPosts = async (key, start, count) => {
     const post = new Post(id, user, redisPost.time, redisPost.body)
     posts.push(post)
   }
-  RedisService.relaseConnection(redis)
+  redisConnectionPool.relaseConnection(redis)
   return posts
 }
 
@@ -35,13 +36,13 @@ module.exports = {
     return getPosts(key, start, count)
   },
   getNewPostId: async () => {
-    const redis = await RedisService.getConnection()
+    const redis = await redisConnectionPool.connect()
     const postId = await redis.incr('next_post_id')
-    RedisService.relaseConnection(redis)
+    redisConnectionPool.relaseConnection(redis)
     return postId
   },
   doPost: async (postId, user, status, currentTime) => {
-    const redis = await RedisService.getConnection()
+    const redis = await redisConnectionPool.connect()
 
     //regist post detail
     redis.hmset(`post:${postId}`, {
@@ -63,6 +64,6 @@ module.exports = {
     // add post to global timeline
     redis.lpush('timeline', postId)
     redis.ltrim('timeline', 0, 1000) //timeline saves 1000 posts.
-    RedisService.relaseConnection(redis)
+    redisConnectionPool.relaseConnection(redis)
   },
 }

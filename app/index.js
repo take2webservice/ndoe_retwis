@@ -4,7 +4,7 @@ const urlLib = require('url')
 const path = require('path')
 const { staticFile } = require(path.resolve('app/controllers/index_controller'))
 const routes = require(path.resolve('app/routes.js'))
-const RedisService = require(path.resolve('app/services/redis_service'))
+const redisConnectionPool = require(path.resolve('app/redis/index'))
 
 const server = http.createServer()
 server.on('request', async function(req, res) {
@@ -25,7 +25,7 @@ server.on('request', async function(req, res) {
   return
 })
 server.on('error', function(error) {
-  RedisService.closeConnection()
+  redisConnectionPool.closeConnection()
   console.log(error)
 })
 
